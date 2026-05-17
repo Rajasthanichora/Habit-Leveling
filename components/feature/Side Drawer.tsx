@@ -38,15 +38,15 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(translateX, { toValue: 0, duration: 280, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 280, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: 0, duration: 260, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 260, useNativeDriver: true }),
       ]).start();
       setShowNewInput(false);
       setNewName('');
     } else {
       Animated.parallel([
-        Animated.timing(translateX, { toValue: -DRAWER_WIDTH, duration: 220, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0, duration: 220, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: -DRAWER_WIDTH, duration: 200, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
       ]).start();
     }
   }, [visible, translateX, opacity]);
@@ -74,7 +74,7 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
           { transform: [{ translateX }], paddingTop: insets.top + Spacing.md },
         ]}
       >
-        {/* Day & Date */}
+        {/* Day & Date header */}
         <View style={styles.dateSection}>
           <Text style={styles.dayName}>{dayName}</Text>
           <Text style={styles.dateStr}>{dateStr}</Text>
@@ -82,7 +82,7 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
 
         <View style={styles.divider} />
 
-        {/* Sections */}
+        {/* Sections label */}
         <Text style={styles.sectionTitle}>SECTIONS</Text>
         <View style={styles.sectionList}>
           {sections.map((sec) => {
@@ -90,13 +90,22 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
             return (
               <Pressable
                 key={sec.id}
-                style={[styles.sectionItem, active && styles.sectionItemActive]}
+                style={({ pressed }) => [
+                  styles.sectionItem,
+                  active && styles.sectionItemActive,
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => { onSelectSection(sec.id); onClose(); }}
               >
+                <View style={[styles.sectionDotIcon, active && { backgroundColor: Colors.primaryGlow }]}>
+                  <View style={[styles.sectionDot, { backgroundColor: active ? Colors.primary : Colors.textMuted }]} />
+                </View>
                 <Text style={[styles.sectionName, active && styles.sectionNameActive]}>
                   {sec.name}
                 </Text>
-                {active && <View style={styles.activeDot} />}
+                {active && (
+                  <MaterialIcons name="check" size={16} color={Colors.primary} />
+                )}
               </Pressable>
             );
           })}
@@ -125,7 +134,9 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
               style={styles.newSectionBtn}
               onPress={() => setShowNewInput(true)}
             >
-              <MaterialIcons name="add" size={18} color={Colors.primary} />
+              <View style={styles.addIconWrap}>
+                <MaterialIcons name="add" size={16} color={Colors.primary} />
+              </View>
               <Text style={styles.newSectionText}>New Section</Text>
             </Pressable>
           )}
@@ -136,11 +147,14 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
 
         {/* Settings */}
         <Pressable
-          style={styles.settingsBtn}
+          style={({ pressed }) => [styles.settingsBtn, pressed && { opacity: 0.7 }]}
           onPress={() => { onSettings(); onClose(); }}
         >
-          <MaterialIcons name="settings" size={22} color={Colors.textSecondary} />
+          <View style={styles.settingsIcon}>
+            <MaterialIcons name="settings" size={18} color={Colors.textSecondary} />
+          </View>
           <Text style={styles.settingsText}>Settings</Text>
+          <MaterialIcons name="chevron-right" size={18} color={Colors.textMuted} />
         </Pressable>
       </Animated.View>
     </View>
@@ -150,7 +164,7 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   drawer: {
     position: 'absolute',
@@ -159,7 +173,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: DRAWER_WIDTH,
     backgroundColor: Colors.surface,
-    borderRightWidth: 1,
+    borderRightWidth: 0.5,
     borderRightColor: Colors.cardBorder,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
@@ -176,10 +190,10 @@ const styles = StyleSheet.create({
   dateStr: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
-    marginTop: 2,
+    marginTop: 3,
   },
   divider: {
-    height: 1,
+    height: 0.5,
     backgroundColor: Colors.separator,
     marginBottom: Spacing.md,
   },
@@ -187,7 +201,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.textMuted,
     fontWeight: FontWeight.semibold,
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
     marginBottom: Spacing.sm,
   },
   sectionList: {
@@ -196,12 +210,26 @@ const styles = StyleSheet.create({
   sectionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.sm + 2,
+    paddingVertical: 10,
     paddingHorizontal: Spacing.sm,
     borderRadius: Radius.md,
+    gap: Spacing.sm,
   },
   sectionItemActive: {
-    backgroundColor: 'rgba(41,121,255,0.12)',
+    backgroundColor: Colors.primaryGlow,
+  },
+  sectionDotIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+  },
+  sectionDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   sectionName: {
     flex: 1,
@@ -213,19 +241,21 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: FontWeight.semibold,
   },
-  activeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.primary,
-  },
   newSectionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    paddingVertical: Spacing.sm,
+    paddingVertical: 10,
     paddingHorizontal: Spacing.sm,
-    marginTop: Spacing.xs,
+    marginTop: 2,
+  },
+  addIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.primaryGlow,
   },
   newSectionText: {
     fontSize: FontSize.sm,
@@ -238,15 +268,16 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.sm,
+    marginTop: 4,
   },
   newSectionInput: {
     flex: 1,
     backgroundColor: Colors.inputBg,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.inputBorder,
     borderRadius: Radius.sm,
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 6,
+    paddingVertical: 7,
     color: Colors.textPrimary,
     fontSize: FontSize.sm,
   },
@@ -256,10 +287,22 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.sm,
-    borderTopWidth: 1,
+    borderTopWidth: 0.5,
     borderTopColor: Colors.separator,
+    borderRadius: Radius.md,
+  },
+  settingsIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: Colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   settingsText: {
+    flex: 1,
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     fontWeight: FontWeight.medium,

@@ -41,20 +41,20 @@ function DateDot({ date, completed, isActive, isToday }: DateDotProps) {
   let borderColor: string;
 
   if (!isActive) {
-    bg = '#1E1E1E';
-    borderColor = '#333';
+    bg = 'transparent';
+    borderColor = Colors.cardBorder;
     textColor = Colors.textMuted;
   } else if (completed) {
     bg = Colors.success;
     borderColor = Colors.success;
     textColor = '#fff';
   } else if (isPast) {
-    bg = Colors.warning;
-    borderColor = Colors.warning;
-    textColor = '#fff';
+    bg = `${Colors.warning}20`;
+    borderColor = `${Colors.warning}60`;
+    textColor = Colors.warning;
   } else {
     bg = 'transparent';
-    borderColor = Colors.textMuted;
+    borderColor = 'rgba(255,255,255,0.1)';
     textColor = Colors.textSecondary;
   }
 
@@ -62,7 +62,7 @@ function DateDot({ date, completed, isActive, isToday }: DateDotProps) {
     <View
       style={[
         styles.dot,
-        { backgroundColor: bg, borderColor, borderWidth: isToday ? 2 : 1.5 },
+        { backgroundColor: bg, borderColor, borderWidth: isToday ? 1.5 : 1 },
       ]}
     >
       <Text style={[styles.dotText, { color: textColor, fontWeight: isToday ? FontWeight.bold : FontWeight.medium }]}>
@@ -111,8 +111,8 @@ export const HabitListCard = React.memo(function HabitListCard({
         <View style={styles.body}>
           {/* Top row */}
           <View style={styles.topRow}>
-            <View style={[styles.iconBox, { backgroundColor: catConfig.color }]}>
-              <CategoryIcon icon={catConfig.icon} color={catConfig.color} size={20} />
+            <View style={[styles.iconBox, { backgroundColor: `${catConfig.color}18` }]}>
+              <CategoryIcon icon={catConfig.icon} color={catConfig.color} size={18} />
             </View>
             <View style={styles.nameBlock}>
               <Text style={styles.name} numberOfLines={1}>{habit.name}</Text>
@@ -123,9 +123,9 @@ export const HabitListCard = React.memo(function HabitListCard({
             <Pressable
               style={styles.dotsBtn}
               onPress={() => setShowOptions(true)}
-              hitSlop={8}
+              hitSlop={10}
             >
-              <MaterialIcons name="more-vert" size={20} color={Colors.textSecondary} />
+              <MaterialIcons name="more-vert" size={18} color={Colors.textMuted} />
             </Pressable>
           </View>
 
@@ -148,8 +148,11 @@ export const HabitListCard = React.memo(function HabitListCard({
           </View>
 
           {/* Progress bar */}
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: catConfig.color }]} />
+          <View style={styles.progressRow}>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: catConfig.color }]} />
+            </View>
+            <Text style={styles.progressPct}>{Math.round(progress * 100)}%</Text>
           </View>
         </View>
       </View>
@@ -172,30 +175,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: Colors.card,
     borderRadius: Radius.lg,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
     marginBottom: Spacing.sm,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   accent: {
-    width: 4,
-    borderTopLeftRadius: Radius.lg,
-    borderBottomLeftRadius: Radius.lg,
+    width: 3,
   },
   body: {
     flex: 1,
     padding: Spacing.md,
-    paddingBottom: Spacing.sm,
+    paddingBottom: 10,
+    paddingLeft: 12,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: 10,
     gap: Spacing.sm,
   },
   iconBox: {
-    width: 40,
-    height: 40,
+    width: 38,
+    height: 38,
     borderRadius: Radius.sm,
     justifyContent: 'center',
     alignItems: 'center',
@@ -208,14 +215,16 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: 3,
   },
   freqBadge: {
     alignSelf: 'flex-start',
     backgroundColor: Colors.surface,
     borderRadius: Radius.full,
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   freqText: {
     fontSize: FontSize.xs,
@@ -228,27 +237,30 @@ const styles = StyleSheet.create({
   },
   dotsRow: {
     flexDirection: 'row',
-    gap: 6,
-    marginBottom: Spacing.sm,
+    gap: 5,
+    marginBottom: 10,
     flexWrap: 'nowrap',
   },
   dot: {
     flex: 1,
     aspectRatio: 1,
-    maxWidth: 38,
-    minWidth: 28,
+    maxWidth: 36,
+    minWidth: 26,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#444',
-    backgroundColor: '#1E1E1E',
   },
   dotText: {
-    fontSize: FontSize.xs,
+    fontSize: 10,
     fontWeight: FontWeight.medium,
   },
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   progressTrack: {
+    flex: 1,
     height: 3,
     backgroundColor: Colors.progressBg,
     borderRadius: Radius.full,
@@ -257,5 +269,12 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: Radius.full,
+  },
+  progressPct: {
+    fontSize: 10,
+    color: Colors.textMuted,
+    fontWeight: FontWeight.medium,
+    minWidth: 28,
+    textAlign: 'right',
   },
 });

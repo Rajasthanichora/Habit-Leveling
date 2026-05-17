@@ -24,7 +24,7 @@ const TABS: TabItem[] = [
   { name: 'index', label: 'Today', icon: 'calendar-today' },
   { name: 'habits', label: 'Habits', icon: 'format-list-bulleted' },
   { name: 'tasks', label: 'AI', icon: 'smart-toy' },
-  { name: 'statistics', label: 'Statistics', icon: 'bar-chart' },
+  { name: 'statistics', label: 'Stats', icon: 'bar-chart' },
 ];
 
 interface Props {
@@ -43,19 +43,19 @@ function TabButton({
   onPress: () => void;
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const colorAnim = useRef(new Animated.Value(isActive ? 1 : 0)).current;
+  const opacityAnim = useRef(new Animated.Value(isActive ? 1 : 0)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.spring(scaleAnim, {
-        toValue: isActive ? 1.08 : 1,
+        toValue: isActive ? 1.06 : 1,
         useNativeDriver: true,
-        tension: 300,
-        friction: 20,
+        tension: 280,
+        friction: 22,
       }),
-      Animated.timing(colorAnim, {
+      Animated.timing(opacityAnim, {
         toValue: isActive ? 1 : 0,
-        duration: 200,
+        duration: 180,
         useNativeDriver: false,
       }),
     ]).start();
@@ -69,10 +69,13 @@ function TabButton({
       accessibilityLabel={tab.label}
     >
       <Animated.View style={[styles.tabInner, { transform: [{ scale: scaleAnim }] }]}>
+        {isActive && (
+          <View style={styles.activeIndicator} />
+        )}
         <MaterialIcons
           name={tab.icon as any}
-          size={22}
-          color={isActive ? Colors.primary : '#666'}
+          size={21}
+          color={isActive ? Colors.primary : Colors.textMuted}
         />
         <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
           {tab.label}
@@ -87,17 +90,17 @@ export function CustomTabBar({ activeTab, onTabPress, onAddPress }: Props) {
   const fabScale = useRef(new Animated.Value(1)).current;
 
   const handleFabPressIn = () => {
-    Animated.spring(fabScale, { toValue: 0.9, useNativeDriver: true, tension: 300 }).start();
+    Animated.spring(fabScale, { toValue: 0.88, useNativeDriver: true, tension: 300 }).start();
   };
   const handleFabPressOut = () => {
-    Animated.spring(fabScale, { toValue: 1, useNativeDriver: true, tension: 300 }).start();
+    Animated.spring(fabScale, { toValue: 1, useNativeDriver: true, tension: 260 }).start();
   };
 
   const leftTabs = TABS.slice(0, 2);
   const rightTabs = TABS.slice(2, 4);
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, 6) }]}>
       <View style={styles.bar}>
         {/* Left tabs */}
         <View style={styles.tabGroup}>
@@ -121,7 +124,7 @@ export function CustomTabBar({ activeTab, onTabPress, onAddPress }: Props) {
             accessibilityLabel="Add habit"
           >
             <Animated.View style={[styles.fab, { transform: [{ scale: fabScale }] }]}>
-              <MaterialIcons name="add" size={32} color="#fff" />
+              <MaterialIcons name="add" size={28} color="#fff" />
             </Animated.View>
           </Pressable>
         </View>
@@ -146,22 +149,23 @@ const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: 'transparent',
     paddingHorizontal: Spacing.md,
-    paddingBottom: 6,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1C1E',
-    borderRadius: 30,
+    backgroundColor: Colors.tabBar,
+    borderRadius: Radius.xl,
     paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    paddingVertical: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.tabBarBorder,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.6,
+    shadowRadius: 24,
+    elevation: 16,
   },
   tabGroup: {
     flex: 1,
@@ -179,10 +183,19 @@ const styles = StyleSheet.create({
   tabInner: {
     alignItems: 'center',
     gap: 3,
+    position: 'relative',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: -8,
+    width: 18,
+    height: 2,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.primary,
   },
   tabLabel: {
     fontSize: FontSize.xs,
-    color: '#666',
+    color: Colors.textMuted,
     fontWeight: FontWeight.medium,
   },
   tabLabelActive: {
@@ -190,26 +203,26 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.semibold,
   },
   fabSlot: {
-    width: 72,
+    width: 68,
     alignItems: 'center',
     justifyContent: 'center',
   },
   fabOuter: {
-    marginTop: -22,
+    marginTop: -20,
   },
   fab: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 10,
-    borderWidth: 3,
-    borderColor: '#1C1C1E',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: Colors.tabBar,
   },
 });

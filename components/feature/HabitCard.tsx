@@ -37,6 +37,7 @@ export const HabitCard = React.memo(function HabitCard({ habit, completed, onTog
       <Pressable
         style={({ pressed }) => [
           styles.card,
+          completed && styles.cardCompleted,
           pressed && !drag && styles.pressed,
           isActive && styles.dragging,
         ]}
@@ -45,16 +46,19 @@ export const HabitCard = React.memo(function HabitCard({ habit, completed, onTog
         delayLongPress={200}
         accessibilityLabel={`Habit: ${habit.name}`}
       >
+        {/* Left accent bar */}
+        <View style={[styles.accentBar, { backgroundColor: catConfig.color }]} />
+
         {/* Drag Handle */}
         {drag && (
           <View style={styles.dragHandle}>
-            <MaterialIcons name="drag-handle" size={22} color={Colors.textMuted} />
+            <MaterialIcons name="drag-handle" size={20} color={Colors.textMuted} />
           </View>
         )}
 
         {/* Category Icon */}
-        <View style={[styles.iconBox, { backgroundColor: catConfig.color }]}>
-          <CategoryIcon icon={catConfig.icon} color={catConfig.color} size={22} />
+        <View style={[styles.iconBox, { backgroundColor: `${catConfig.color}18` }]}>
+          <CategoryIcon icon={catConfig.icon} color={catConfig.color} size={20} />
         </View>
 
         {/* Content */}
@@ -63,7 +67,8 @@ export const HabitCard = React.memo(function HabitCard({ habit, completed, onTog
             {habit.name}
           </Text>
           <View style={styles.tagRow}>
-            <View style={[styles.tag, { borderColor: catConfig.color }]}>
+            <View style={[styles.tag, { borderColor: `${catConfig.color}50`, backgroundColor: `${catConfig.color}10` }]}>
+              <View style={[styles.tagDot, { backgroundColor: catConfig.color }]} />
               <Text style={[styles.tagText, { color: catConfig.color }]}>{catConfig.name}</Text>
             </View>
             <View style={styles.priorityBadge}>
@@ -74,13 +79,13 @@ export const HabitCard = React.memo(function HabitCard({ habit, completed, onTog
 
         {/* Actions */}
         <View style={styles.actions}>
-          <Checkbox checked={completed} onToggle={handleToggle} size={30} />
+          <Checkbox checked={completed} onToggle={handleToggle} size={28} />
           <Pressable
             onPress={() => setShowOptions(true)}
-            hitSlop={8}
+            hitSlop={10}
             style={styles.dotsBtn}
           >
-            <MaterialIcons name="more-vert" size={20} color={Colors.textSecondary} />
+            <MaterialIcons name="more-vert" size={18} color={Colors.textMuted} />
           </Pressable>
         </View>
       </Pressable>
@@ -104,44 +109,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.card,
     borderRadius: Radius.lg,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
-    padding: Spacing.md,
     marginBottom: Spacing.sm,
-  },
-  pressed: { opacity: 0.85 },
-  dragging: {
-    opacity: 0.85,
-    backgroundColor: Colors.surface,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  cardCompleted: {
+    opacity: 0.55,
+  },
+  accentBar: {
+    width: 3,
+    alignSelf: 'stretch',
+  },
+  pressed: { opacity: 0.7 },
+  dragging: {
+    opacity: 0.9,
+    backgroundColor: Colors.cardElevated,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 10,
   },
   dragHandle: {
-    paddingRight: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconBox: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: Radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.md,
+    marginLeft: 10,
+    marginRight: Spacing.sm,
     flexShrink: 0,
   },
   content: {
     flex: 1,
     marginRight: Spacing.sm,
+    paddingVertical: Spacing.md,
   },
   name: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: 5,
     lineHeight: 20,
   },
   nameCompleted: {
@@ -154,10 +173,18 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tag: {
-    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 0.5,
     borderRadius: Radius.full,
     paddingHorizontal: 8,
     paddingVertical: 2,
+  },
+  tagDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
   },
   tagText: {
     fontSize: FontSize.xs,
@@ -166,18 +193,21 @@ const styles = StyleSheet.create({
   priorityBadge: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.full,
-    paddingHorizontal: 6,
+    paddingHorizontal: 7,
     paddingVertical: 2,
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   priorityText: {
     fontSize: FontSize.xs,
-    color: Colors.textSecondary,
+    color: Colors.textMuted,
     fontWeight: FontWeight.medium,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
+    paddingRight: 10,
   },
   dotsBtn: {
     padding: 4,

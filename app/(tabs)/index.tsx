@@ -292,16 +292,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    marginBottom: Spacing.xs,
+    marginBottom: 2,
   },
   iconBtn: {
-    width: 44,
-    height: 44,
+    width: 42,
+    height: 42,
     borderRadius: Radius.full,
     backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
   },
   todayPill: {
@@ -310,8 +310,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
+    paddingVertical: 9,
     gap: 4,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   todayText: {
     color: '#fff',
@@ -320,7 +325,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: Spacing.md,
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
   emptyState: {
     flex: 1,
@@ -340,10 +345,10 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     textAlign: 'center',
+    lineHeight: 20,
   },
   emptyText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
   },
-
 });

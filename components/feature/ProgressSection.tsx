@@ -15,7 +15,7 @@ export function ProgressSection({ progress, completed, total }: Props) {
   useEffect(() => {
     Animated.timing(anim, {
       toValue: progress,
-      duration: 500,
+      duration: 600,
       useNativeDriver: false,
     }).start();
   }, [progress]);
@@ -27,14 +27,22 @@ export function ProgressSection({ progress, completed, total }: Props) {
 
   const pct = Math.round(progress * 100);
 
+  // Color shifts: muted → primary → success based on completion
+  const fillColor = pct >= 100 ? Colors.success : Colors.primary;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.label}>PROGRESS</Text>
-        <Text style={styles.pctText}>{pct}%</Text>
+        <View style={styles.pctRow}>
+          <Text style={[styles.pctText, pct >= 100 && { color: Colors.success }]}>{pct}%</Text>
+        </View>
       </View>
       <View style={styles.track}>
-        <Animated.View style={[styles.fill, { width: widthInterpolated }]} />
+        <Animated.View style={[styles.fill, { width: widthInterpolated, backgroundColor: fillColor }]} />
+        {pct > 0 && pct < 100 && (
+          <Animated.View style={[styles.fillGlow, { width: widthInterpolated, backgroundColor: `${fillColor}22` }]} />
+        )}
       </View>
       <Text style={styles.subLabel}>
         {completed} of {total} habits completed
@@ -46,40 +54,52 @@ export function ProgressSection({ progress, completed, total }: Props) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    marginBottom: Spacing.xs,
+    paddingVertical: 10,
+    marginBottom: 2,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.xs,
+    marginBottom: 6,
   },
   label: {
     fontSize: FontSize.xs,
-    color: Colors.textSecondary,
+    color: Colors.textMuted,
     fontWeight: FontWeight.semibold,
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
+  },
+  pctRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   pctText: {
     fontSize: FontSize.sm,
-    color: Colors.textPrimary,
+    color: Colors.primary,
     fontWeight: FontWeight.bold,
   },
   track: {
-    height: 6,
+    height: 4,
     backgroundColor: Colors.progressBg,
     borderRadius: Radius.full,
-    overflow: 'hidden',
+    overflow: 'visible',
+    position: 'relative',
   },
   fill: {
     height: '100%',
-    backgroundColor: Colors.primary,
+    borderRadius: Radius.full,
+  },
+  fillGlow: {
+    position: 'absolute',
+    top: -2,
+    left: 0,
+    height: 8,
     borderRadius: Radius.full,
   },
   subLabel: {
     fontSize: FontSize.xs,
     color: Colors.textMuted,
-    marginTop: 4,
+    marginTop: 5,
   },
 });
