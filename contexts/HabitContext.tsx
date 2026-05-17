@@ -150,10 +150,15 @@ export function HabitProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reorderHabits = useCallback(async (reordered: Habit[]) => {
-    const updated = reordered.map((h, i) => ({ ...h, order: i }));
+    const orderMap = new Map<string, number>();
+    reordered.forEach((h, i) => orderMap.set(h.id, i));
+    const updated = habits.map((h) => {
+      const newOrder = orderMap.get(h.id);
+      return newOrder !== undefined ? { ...h, order: newOrder } : h;
+    });
     setHabits(updated);
     await saveHabits(updated);
-  }, []);
+  }, [habits]);
 
   const addSectionAction = useCallback(async (section: Section) => {
     const updated = [...sections, section];

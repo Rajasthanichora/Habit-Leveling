@@ -2,6 +2,19 @@ import { Audio, AVPlaybackSource } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { SoundConfig, DEFAULT_SOUND_CONFIG } from './types';
 
+// ── Audio Mode Initialization ──
+export async function initAudio(): Promise<void> {
+  try {
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+      allowsRecordingIOS: false,
+    });
+  } catch {}
+}
+
 const ALARM_SOUNDS: Record<string, AVPlaybackSource> = {
   chime: require('../assets/sounds/chime.wav'),
   bell: require('../assets/sounds/bell.wav'),
@@ -9,6 +22,9 @@ const ALARM_SOUNDS: Record<string, AVPlaybackSource> = {
   beep: require('../assets/sounds/beep.wav'),
   ding: require('../assets/sounds/ding.wav'),
 };
+
+const COMPLETION_SOURCE: AVPlaybackSource = require('../assets/sounds/ding.wav');
+const DELETE_SOURCE: AVPlaybackSource = require('../assets/sounds/beep.wav');
 
 export const ALARM_SOUND_NAMES = Object.keys(ALARM_SOUNDS);
 
@@ -18,9 +34,16 @@ export function setSoundConfig(config: SoundConfig) {
   currentConfig = config;
 }
 
-async function playSound(source: AVPlaybackSource) {
+let preloaded = false;
+
+async function loadSound(source: AVPlaybackSource): Promise<Audio.Sound> {
+  const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
+  return sound;
+}
+
+async function playOnce(source: AVPlaybackSource) {
   try {
-    const { sound } = await Audio.Sound.createAsync(source, { volume: 0.5 });
+    const sound = await loadSound(source);
     await sound.playAsync();
     sound.setOnPlaybackStatusUpdate((status) => {
       if (status.isLoaded && status.didJustFinish) {
@@ -30,15 +53,27 @@ async function playSound(source: AVPlaybackSource) {
   } catch {}
 }
 
+export async function preloadCommonSounds(): Promise<void> {
+  if (preloaded) return;
+  preloaded = true;
+  const sounds = [COMPLETION_SOURCE, DELETE_SOURCE, ALARM_SOUNDS.chime];
+  for (const s of sounds) {
+    try {
+      const sound = await loadSound(s);
+      await sound.unloadAsync();
+    } catch {}
+  }
+}
+
 export async function playCompletionSound() {
   if (currentConfig.completionSound) {
-    await playSound(ALARM_SOUNDS.complete || require('../assets/sounds/ding.wav'));
+    await playOnce(COMPLETION_SOURCE);
   }
 }
 
 export async function playDeleteSound() {
   if (currentConfig.deleteSound) {
-    await playSound(ALARM_SOUNDS.delete || require('../assets/sounds/beep.wav'));
+    await playOnce(DELETE_SOURCE);
   }
 }
 
@@ -46,13 +81,13 @@ export async function playAlarmSound(soundName?: string) {
   const name = soundName || currentConfig.alarmSound;
   const source = ALARM_SOUNDS[name];
   if (source) {
-    await playSound(source);
+    await playOnce(source);
   }
 }
 
 export async function playNotificationSound() {
   if (currentConfig.notificationSound) {
-    await playSound(require('../assets/sounds/chime.wav'));
+    await playOnce(require('../assets/sounds/chime.wav'));
   }
 }
 

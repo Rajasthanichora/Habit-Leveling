@@ -25,6 +25,7 @@ export function CategoryFilter({ active, onSelect, completedCount }: Props) {
           const isAll = f === 'All';
           const isComplete = f === 'Complete';
           const catConfig = CategoryConfig[f];
+          const catColor = catConfig?.color;
 
           return (
             <Pressable
@@ -33,26 +34,33 @@ export function CategoryFilter({ active, onSelect, completedCount }: Props) {
               style={({ pressed }) => [
                 styles.chip,
                 isSelected && styles.chipSelected,
-                pressed && styles.chipPressed,
+                isSelected && catColor && !isAll && !isComplete
+                  ? { borderColor: catColor, backgroundColor: `${catColor}18` }
+                  : null,
+                pressed && { opacity: 0.65 },
               ]}
             >
               {isAll && (
                 <View style={[styles.checkIcon, isSelected && styles.checkIconSelected]}>
-                  <MaterialIcons name="check" size={12} color={isSelected ? '#fff' : Colors.success} />
+                  <MaterialIcons name="check" size={10} color={isSelected ? '#fff' : Colors.success} />
                 </View>
               )}
               {isComplete && (
                 <MaterialIcons
                   name="done-all"
-                  size={14}
-                  color={isSelected ? '#fff' : Colors.textSecondary}
+                  size={13}
+                  color={isSelected ? Colors.primary : Colors.textSecondary}
                   style={{ marginRight: 4 }}
                 />
               )}
               {catConfig && !isAll && !isComplete && (
                 <View style={[styles.catDot, { backgroundColor: catConfig.color }]} />
               )}
-              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+              <Text style={[
+                styles.chipText,
+                isSelected && styles.chipTextSelected,
+                isSelected && catColor && !isAll && !isComplete ? { color: catColor } : null,
+              ]}>
                 {isAll ? `${completedCount}` : f}
               </Text>
             </Pressable>
@@ -66,7 +74,7 @@ export function CategoryFilter({ active, onSelect, completedCount }: Props) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background,
-    paddingVertical: Spacing.xs,
+    paddingVertical: 6,
   },
   content: {
     paddingHorizontal: Spacing.md,
@@ -75,34 +83,33 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs + 2,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: Radius.full,
-    backgroundColor: Colors.chipBg,
+    backgroundColor: Colors.surface,
     marginRight: Spacing.sm,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
-    height: 36,
+    height: 34,
   },
   chipSelected: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryGlow,
     borderColor: Colors.primary,
   },
-  chipPressed: { opacity: 0.7 },
   chipText: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     fontWeight: FontWeight.medium,
   },
   chipTextSelected: {
-    color: '#fff',
+    color: Colors.primary,
     fontWeight: FontWeight.semibold,
   },
   checkIcon: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
     borderColor: Colors.success,
     justifyContent: 'center',
     alignItems: 'center',
@@ -113,8 +120,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.success,
   },
   catDot: {
-    width: 8,
-    height: 8,
+    width: 7,
+    height: 7,
     borderRadius: 4,
     marginRight: 5,
   },

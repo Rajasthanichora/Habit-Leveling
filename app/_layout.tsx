@@ -4,11 +4,14 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { HabitProvider } from '../contexts/HabitContext';
 import { initNotifications, updateNotificationSoundConfig, scheduleReminderNotification, cancelAllReminderNotifications } from '../services/notificationService';
 import { loadSoundConfig, loadReminders, loadHabits } from '../services/habitService';
+import { initAudio, preloadCommonSounds } from '../services/soundService';
 
 function NotificationInit() {
   useEffect(() => {
     (async () => {
       try {
+        await initAudio();
+        preloadCommonSounds();
         await initNotifications();
         const snd = await loadSoundConfig();
         updateNotificationSoundConfig(snd);

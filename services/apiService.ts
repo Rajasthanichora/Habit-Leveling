@@ -16,18 +16,26 @@ const isWeb = Platform.OS === 'web';
 // Falls back to AsyncStorage on web where secure storage isn't available.
 
 async function saveSecureKey(storeKey: string, fallbackKey: string, value: string): Promise<void> {
-  if (isWeb) {
-    if (value) {
+  if (value) {
+    if (isWeb) {
       await AsyncStorage.setItem(fallbackKey, value);
     } else {
-      try { await AsyncStorage.removeItem(fallbackKey); } catch {}
+      try {
+        await SecureStore.setItemAsync(storeKey, value);
+      } catch {
+        try { await AsyncStorage.setItem(fallbackKey, value); } catch {}
+      }
     }
-    return;
-  }
-  if (value) {
-    await SecureStore.setItemAsync(storeKey, value);
   } else {
-    try { await SecureStore.deleteItemAsync(storeKey); } catch {}
+    if (isWeb) {
+      try { await AsyncStorage.removeItem(fallbackKey); } catch {}
+    } else {
+      try {
+        await SecureStore.deleteItemAsync(storeKey);
+      } catch {
+        try { await AsyncStorage.removeItem(fallbackKey); } catch {}
+      }
+    }
   }
 }
 
@@ -42,6 +50,10 @@ async function loadSecureKey(storeKey: string, fallbackKey: string): Promise<str
   }
   try {
     const val = await SecureStore.getItemAsync(storeKey);
+    if (val) return val;
+  } catch {}
+  try {
+    const val = await AsyncStorage.getItem(fallbackKey);
     return val ?? '';
   } catch {
     return '';

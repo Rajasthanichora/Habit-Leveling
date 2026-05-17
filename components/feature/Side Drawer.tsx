@@ -38,15 +38,15 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(translateX, { toValue: 0, duration: 280, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 280, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: 0, duration: 260, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 260, useNativeDriver: true }),
       ]).start();
       setShowNewInput(false);
       setNewName('');
     } else {
       Animated.parallel([
-        Animated.timing(translateX, { toValue: -DRAWER_WIDTH, duration: 220, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0, duration: 220, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: -DRAWER_WIDTH, duration: 200, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
       ]).start();
     }
   }, [visible, translateX, opacity]);
@@ -74,7 +74,7 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
           { transform: [{ translateX }], paddingTop: insets.top + Spacing.md },
         ]}
       >
-        {/* Day & Date */}
+        {/* Day & Date header */}
         <View style={styles.dateSection}>
           <Text style={styles.dayName}>{dayName}</Text>
           <Text style={styles.dateStr}>{dateStr}</Text>
@@ -82,22 +82,42 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
 
         <View style={styles.divider} />
 
-        {/* Sections */}
+        {/* Sections label */}
         <Text style={styles.sectionTitle}>SECTIONS</Text>
         <View style={styles.sectionList}>
           {sections.map((sec) => {
             const active = sec.id === selectedSectionId;
+            const isDefault = sec.id === 'default';
             return (
-              <Pressable
-                key={sec.id}
-                style={[styles.sectionItem, active && styles.sectionItemActive]}
-                onPress={() => { onSelectSection(sec.id); onClose(); }}
-              >
-                <Text style={[styles.sectionName, active && styles.sectionNameActive]}>
-                  {sec.name}
-                </Text>
-                {active && <View style={styles.activeDot} />}
-              </Pressable>
+              <View key={sec.id} style={styles.sectionItemRow}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.sectionItem,
+                    active && styles.sectionItemActive,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => { onSelectSection(sec.id); onClose(); }}
+                >
+                  <View style={[styles.sectionDotIcon, active && { backgroundColor: Colors.primaryGlow }]}>
+                    <View style={[styles.sectionDot, { backgroundColor: active ? Colors.primary : Colors.textMuted }]} />
+                  </View>
+                  <Text style={[styles.sectionName, active && styles.sectionNameActive]}>
+                    {sec.name}
+                  </Text>
+                  {active && (
+                    <MaterialIcons name="check" size={16} color={Colors.primary} />
+                  )}
+                </Pressable>
+                {!isDefault && (
+                  <Pressable
+                    style={styles.sectionDeleteBtn}
+                    onPress={() => onDeleteSection(sec.id)}
+                    hitSlop={8}
+                  >
+                    <MaterialIcons name="close" size={14} color={Colors.textMuted} />
+                  </Pressable>
+                )}
+              </View>
             );
           })}
 
@@ -125,7 +145,9 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
               style={styles.newSectionBtn}
               onPress={() => setShowNewInput(true)}
             >
-              <MaterialIcons name="add" size={18} color={Colors.primary} />
+              <View style={styles.addIconWrap}>
+                <MaterialIcons name="add" size={16} color={Colors.primary} />
+              </View>
               <Text style={styles.newSectionText}>New Section</Text>
             </Pressable>
           )}
@@ -136,11 +158,14 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
 
         {/* Settings */}
         <Pressable
-          style={styles.settingsBtn}
+          style={({ pressed }) => [styles.settingsBtn, pressed && { opacity: 0.7 }]}
           onPress={() => { onSettings(); onClose(); }}
         >
-          <MaterialIcons name="settings" size={22} color={Colors.textSecondary} />
+          <View style={styles.settingsIcon}>
+            <MaterialIcons name="settings" size={18} color={Colors.textSecondary} />
+          </View>
           <Text style={styles.settingsText}>Settings</Text>
+          <MaterialIcons name="chevron-right" size={18} color={Colors.textMuted} />
         </Pressable>
       </Animated.View>
     </View>
@@ -150,7 +175,7 @@ export function SideDrawer({ visible, onClose, onSettings, sections, selectedSec
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: 'rgba(0,0,0,0.82)',
   },
   drawer: {
     position: 'absolute',
@@ -159,16 +184,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: DRAWER_WIDTH,
     backgroundColor: Colors.surface,
-    borderRightWidth: 1,
+    borderRightWidth: 0.5,
     borderRightColor: Colors.cardBorder,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xxl,
   },
   dateSection: {
     marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.sm,
   },
   dayName: {
-    fontSize: FontSize.xxl,
+    fontSize: FontSize.xxxl,
     fontWeight: FontWeight.bold,
     color: Colors.textPrimary,
     letterSpacing: -0.5,
@@ -176,32 +202,67 @@ const styles = StyleSheet.create({
   dateStr: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
-    marginTop: 2,
+    marginTop: 4,
+    fontWeight: FontWeight.medium,
   },
   divider: {
-    height: 1,
+    height: 0.5,
     backgroundColor: Colors.separator,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
+    marginHorizontal: Spacing.sm,
   },
   sectionTitle: {
     fontSize: FontSize.xs,
     color: Colors.textMuted,
     fontWeight: FontWeight.semibold,
-    letterSpacing: 1.2,
-    marginBottom: Spacing.sm,
+    letterSpacing: 1.6,
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.sm,
   },
   sectionList: {
-    gap: 2,
+    gap: 4,
   },
-  sectionItem: {
+  sectionItemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.sm + 2,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: Radius.md,
+    gap: 4,
+  },
+  sectionItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.sm,
+    gap: Spacing.md,
+  },
+  sectionDeleteBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   sectionItemActive: {
-    backgroundColor: 'rgba(41,121,255,0.12)',
+    backgroundColor: Colors.primaryGlow,
+  },
+  sectionDotIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
+  },
+  sectionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   sectionName: {
     flex: 1,
@@ -213,40 +274,50 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: FontWeight.semibold,
   },
-  activeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.primary,
-  },
   newSectionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.sm,
-    marginTop: Spacing.xs,
+    gap: Spacing.md,
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    marginTop: 4,
+    borderRadius: Radius.sm,
+  },
+  addIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.primaryGlow,
+    borderWidth: 0.5,
+    borderColor: Colors.primary,
   },
   newSectionText: {
     fontSize: FontSize.sm,
     color: Colors.primary,
-    fontWeight: FontWeight.medium,
+    fontWeight: FontWeight.semibold,
   },
   newSectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    marginTop: 6,
+    backgroundColor: Colors.card,
+    borderRadius: Radius.sm,
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   newSectionInput: {
     flex: 1,
     backgroundColor: Colors.inputBg,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.inputBorder,
     borderRadius: Radius.sm,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 6,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 9,
     color: Colors.textPrimary,
     fontSize: FontSize.sm,
   },
@@ -254,12 +325,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.sm,
-    borderTopWidth: 1,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    borderTopWidth: 0.5,
     borderTopColor: Colors.separator,
+    borderRadius: Radius.sm,
+  },
+  settingsIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: Colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   settingsText: {
+    flex: 1,
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     fontWeight: FontWeight.medium,

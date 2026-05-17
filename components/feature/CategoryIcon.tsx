@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { getSvgIconSource, isSvgIcon } from '../../utils/svgIcons';
+import { getSvgIconComponent, isSvgIcon } from '../../utils/svgIcons';
 
 interface Props {
   icon: string;
@@ -10,15 +9,11 @@ interface Props {
 }
 
 export function CategoryIcon({ icon, color, size = 22 }: Props) {
-  const iconSize = size;
-
   if (isSvgIcon(icon)) {
-    const source = getSvgIconSource(icon);
-    if (source) {
+    const SvgComponent = getSvgIconComponent(icon);
+    if (SvgComponent) {
       return (
-        <View style={[svgStyles.wrapper, { width: iconSize, height: iconSize }]}>
-          <Image source={source} style={{ width: iconSize, height: iconSize }} resizeMode="contain" />
-        </View>
+        <SvgComponent width={size} height={size} color={color} fill={color} />
       );
     }
   }
@@ -26,15 +21,8 @@ export function CategoryIcon({ icon, color, size = 22 }: Props) {
   return (
     <MaterialIcons
       name={(icon || 'category') as any}
-      size={iconSize}
-      color="#fff"
+      size={size}
+      color={color}
     />
   );
 }
-
-const svgStyles = StyleSheet.create({
-  wrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

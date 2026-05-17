@@ -383,7 +383,7 @@ const hr = StyleSheet.create({
   streakText: { fontSize: FontSize.xs, color: Colors.warning, fontWeight: FontWeight.bold },
 });
 
-// ── Advanced Insight Row ──────────────────────────────────────────────────────
+// ── Advanced Insight Row ───────────────────────────────────��──────────────────
 function InsightRow({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) {
   return (
     <View style={ir.row}>
@@ -632,11 +632,11 @@ export default function StatisticsScreen() {
 }
 
 const lb = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.separator },
-  rank: { fontSize: FontSize.md, width: 30 },
-  colorDot: { width: 8, height: 8, borderRadius: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: Colors.separator },
+  rank: { fontSize: FontSize.md, width: 30, color: Colors.textSecondary },
+  colorDot: { width: 7, height: 7, borderRadius: 4 },
   name: { flex: 1, fontSize: FontSize.sm, color: Colors.textPrimary, fontWeight: FontWeight.medium },
-  rate: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, color: Colors.textPrimary },
+  rate: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, color: Colors.primary },
 });
 
 const styles = StyleSheet.create({
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
     borderBottomColor: Colors.separator,
   },
   headerTitle: {
@@ -663,16 +663,21 @@ const styles = StyleSheet.create({
   },
   rangeBtn: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderRadius: Radius.full,
     alignItems: 'center',
     backgroundColor: Colors.surface,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
   },
   rangeBtnActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   rangeBtnText: {
     fontSize: FontSize.sm,
@@ -697,6 +702,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   dateNavLabel: {
     fontSize: FontSize.md,
@@ -710,9 +717,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderRadius: Radius.lg,
     padding: Spacing.md,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
     marginBottom: Spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 2,
   },
   cardGrid: {
     flexDirection: 'row',
@@ -731,8 +743,8 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: 7,
+    height: 7,
     borderRadius: 4,
   },
   legendText: {
@@ -749,11 +761,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: Spacing.sm,
-    backgroundColor: 'rgba(255,149,0,0.1)',
+    backgroundColor: `${Colors.warning}0D`,
     borderRadius: Radius.lg,
     padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,149,0,0.3)',
+    borderWidth: 0.5,
+    borderColor: `${Colors.warning}35`,
     marginBottom: Spacing.md,
   },
   motivText: {

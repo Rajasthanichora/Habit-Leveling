@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -34,9 +35,8 @@ type ViewMode = 'list' | 'grid';
 
 export default function HabitsScreen() {
   const insets = useSafeAreaInsets();
-  const { habits, completions, deleteHabit, archiveHabit, selectedSectionId, categories } = useHabits();
+  const { habits, completions, deleteHabit, archiveHabit, selectedSectionId, categories, reorderHabits } = useHabits();
 
-  const [tab, setTab] = useState<'active' | 'archived'>('active');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [reorderMode, setReorderMode] = useState(false);
 
@@ -44,16 +44,10 @@ export default function HabitsScreen() {
     return new Set(completions.filter((c) => c.completed).map((c) => c.key));
   }, [completions]);
 
-  const activeHabits = useMemo(
+  const displayHabits = useMemo(
     () => habits.filter((h) => !h.archived && h.sectionId === selectedSectionId).sort((a, b) => a.order - b.order),
     [habits, selectedSectionId]
   );
-  const archivedHabits = useMemo(
-    () => habits.filter((h) => h.archived && h.sectionId === selectedSectionId).sort((a, b) => a.order - b.order),
-    [habits, selectedSectionId]
-  );
-
-  const displayHabits = tab === 'active' ? activeHabits : archivedHabits;
 
   const handleDelete = useCallback(async (id: string) => {
     Alert.alert('Delete Habit', 'Are you sure you want to delete this habit?', [
@@ -69,6 +63,27 @@ export default function HabitsScreen() {
   const handleUnarchive = useCallback(async (id: string) => {
     await archiveHabit(id, false);
   }, [archiveHabit]);
+
+  const handleDragEnd = useCallback(({ data }: { data: Habit[] }) => {
+    reorderHabits(data);
+    setReorderMode(false);
+  }, [reorderHabits]);
+
+  const renderDragItem = useCallback(({ item, drag, isActive }: RenderItemParams<Habit>) => (
+    <Pressable
+      onLongPress={drag}
+      delayLongPress={100}
+      style={{ opacity: isActive ? 0.8 : 1 }}
+    >
+      <HabitListCard
+        habit={item}
+        completionSet={completionSet}
+        onDelete={() => handleDelete(item.id)}
+        onEdit={undefined}
+        customCategories={categories}
+      />
+    </Pressable>
+  ), [completionSet, handleDelete, categories]);
 
   const renderItem = useCallback(
     ({ item }: { item: Habit; index: number }) => (
@@ -86,48 +101,28 @@ export default function HabitsScreen() {
             customCategories={categories}
           />
         )}
-        {tab === 'archived' && (
-          <Pressable style={styles.restoreBtn} onPress={() => handleUnarchive(item.id)}>
-            <MaterialIcons name="unarchive" size={16} color={Colors.primary} />
-            <Text style={styles.restoreBtnText}>Restore</Text>
-          </Pressable>
-        )}
       </View>
     ),
-    [completionSet, completions, handleDelete, handleUnarchive, tab, viewMode, categories]
+    [completionSet, completions, handleDelete, viewMode, categories]
   );
 
   const weekDays = getLastNDays(7);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      {/* Header tabs */}
+      {/* Header */}
       <View style={styles.header}>
-        <View style={styles.tabRow}>
-          <Pressable
-            style={[styles.tabBtn, tab === 'active' && styles.tabBtnActive]}
-            onPress={() => setTab('active')}
-          >
-            <Text style={[styles.tabBtnText, tab === 'active' && styles.tabBtnTextActive]}>
-              Active habits
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[styles.tabBtn, tab === 'archived' && styles.tabBtnActive]}
-            onPress={() => setTab('archived')}
-          >
-            <Text style={[styles.tabBtnText, tab === 'archived' && styles.tabBtnTextActive]}>
-              Archived habits
-            </Text>
-          </Pressable>
-        </View>
-
+        <Text style={styles.headerTitle}>Habits</Text>
         <Pressable
-          style={styles.menuBtn}
+          style={[styles.menuBtn, reorderMode && styles.menuBtnActive]}
           onPress={() => setReorderMode((v) => !v)}
           hitSlop={8}
         >
-          <MaterialIcons name="menu" size={22} color={Colors.textPrimary} />
+          <MaterialIcons
+            name={reorderMode ? 'check' : 'menu'}
+            size={22}
+            color={reorderMode ? '#fff' : Colors.textPrimary}
+          />
         </Pressable>
       </View>
 
@@ -135,10 +130,7 @@ export default function HabitsScreen() {
       {reorderMode && (
         <View style={styles.reorderBanner}>
           <MaterialIcons name="drag-indicator" size={18} color={Colors.warning} />
-          <Text style={styles.reorderText}>Long press and drag to reorder habits</Text>
-          <Pressable onPress={() => setReorderMode(false)}>
-            <Text style={styles.doneBtnText}>Done</Text>
-          </Pressable>
+          <Text style={styles.reorderText}>Drag to reorder habits. Tap ✓ when done.</Text>
         </View>
       )}
 
@@ -162,20 +154,24 @@ export default function HabitsScreen() {
       {/* Empty state */}
       {displayHabits.length === 0 ? (
         <View style={styles.empty}>
-          <MaterialIcons
-            name={tab === 'archived' ? 'archive' : 'add-task'}
-            size={64}
-            color={Colors.textMuted}
-          />
-          <Text style={styles.emptyTitle}>
-            {tab === 'archived' ? 'No archived habits' : 'No habits yet'}
-          </Text>
+          <MaterialIcons name="add-task" size={64} color={Colors.textMuted} />
+          <Text style={styles.emptyTitle}>No habits yet</Text>
           <Text style={styles.emptySubtitle}>
-            {tab === 'archived'
-              ? 'Archive habits from the active tab'
-              : 'Add your first habit using the + button'}
+            Add your first habit using the + button
           </Text>
         </View>
+      ) : reorderMode ? (
+        <DraggableFlatList
+          data={displayHabits}
+          keyExtractor={(item) => item.id}
+          renderItem={renderDragItem}
+          onDragEnd={handleDragEnd}
+          contentContainerStyle={[
+            styles.list,
+            { paddingBottom: insets.bottom + 100 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        />
       ) : (
         <FlatList
           data={displayHabits}
@@ -226,35 +222,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    gap: Spacing.sm,
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.separator,
   },
-  tabRow: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.full,
-    padding: 3,
-  },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.full,
-    alignItems: 'center',
-  },
-  tabBtnActive: {
-    backgroundColor: Colors.primary,
-  },
-  tabBtnText: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    fontWeight: FontWeight.medium,
-  },
-  tabBtnTextActive: {
-    color: '#fff',
-    fontWeight: FontWeight.semibold,
+  headerTitle: {
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.bold,
+    color: Colors.textPrimary,
   },
   menuBtn: {
     width: 42,
@@ -263,31 +240,30 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
+  },
+  menuBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   reorderBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,149,0,0.12)',
+    backgroundColor: `${Colors.warning}10`,
     borderRadius: Radius.md,
     marginHorizontal: Spacing.md,
     marginBottom: Spacing.sm,
     padding: Spacing.sm,
     gap: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.warning,
+    borderWidth: 0.5,
+    borderColor: `${Colors.warning}50`,
   },
   reorderText: {
     flex: 1,
     fontSize: FontSize.sm,
     color: Colors.warning,
     fontWeight: FontWeight.medium,
-  },
-  doneBtnText: {
-    color: Colors.primary,
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.bold,
   },
   dayStrip: {
     flexDirection: 'row',
@@ -300,12 +276,12 @@ const styles = StyleSheet.create({
   },
   dayStripLabel: {
     fontSize: FontSize.xs,
-    color: Colors.textSecondary,
+    color: Colors.textMuted,
     fontWeight: FontWeight.medium,
   },
   dayStripNum: {
     fontSize: FontSize.sm,
-    color: Colors.textPrimary,
+    color: Colors.textSecondary,
     fontWeight: FontWeight.bold,
     marginTop: 2,
   },
@@ -314,21 +290,6 @@ const styles = StyleSheet.create({
   },
   heatmapCard: {
     marginBottom: Spacing.sm,
-  },
-  restoreBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    marginTop: -Spacing.xs,
-    marginBottom: Spacing.sm,
-    alignSelf: 'flex-end',
-  },
-  restoreBtnText: {
-    color: Colors.primary,
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
   },
   empty: {
     flex: 1,
@@ -357,9 +318,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
     padding: 4,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
     gap: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
   },
   viewToggleBtn: {
     width: 38,

@@ -1,41 +1,51 @@
 // Powered by OnSpace.AI
 export const Colors = {
-  background: '#0D0D0D',
-  surface: '#1A1A1A',
-  card: '#1E1E1E',
-  cardBorder: '#2A2A2A',
-  primary: '#2979FF',
-  primaryDark: '#1565C0',
-  success: '#4CAF50',
-  danger: '#FF3B5C',
-  warning: '#FF9500',
+  // ── Core Backgrounds (AMOLED hierarchy) ──────────────────────────
+  background: '#000000',       // True AMOLED black
+  surface: '#0E0E0F',          // Elevated surface (cards, drawers)
+  card: '#141415',             // Card background
+  cardElevated: '#1A1A1C',     // Higher-elevation card
+  cardBorder: 'rgba(255,255,255,0.07)', // Crisp subtle border
 
-  textPrimary: '#FFFFFF',
-  textSecondary: '#888888',
-  textMuted: '#555555',
+  // ── Primary Accent ───────────────────────────────────────────────
+  primary: '#4E8EFF',          // Vibrant but refined blue
+  primaryDark: '#2B6AE0',      // Pressed / darker state
+  primaryGlow: 'rgba(78,142,255,0.18)', // Subtle glow / active bg
+
+  // ── Semantic Colors ──────────────────────────────────────────────
+  success: '#34D399',          // Emerald green — completed
+  danger: '#F87171',           // Soft red — failed / delete
+  warning: '#FBBF24',          // Amber — missed / warning
+
+  // ── Text ─────────────────────────────────────────────────────────
+  textPrimary: '#F0F0F2',      // Near-white, reduced harshness
+  textSecondary: '#7A7A85',    // Muted labels
+  textMuted: '#3E3E46',        // Very muted / disabled
   textInverse: '#000000',
 
-  // Category Colors
-  categoryHealth: '#FF6B35',
-  categoryStudy: '#FF3B5C',
-  categoryWork: '#2979FF',
-  categoryOther: '#9B59B6',
-  categoryHome: '#2ECC71',
+  // ── Category Accents ─────────────────────────────────────────────
+  categoryHealth: '#FF6B6B',
+  categoryStudy: '#A78BFA',
+  categoryWork: '#4E8EFF',
+  categoryOther: '#34D399',
+  categoryHome: '#FB923C',
 
-  // UI
-  separator: '#2A2A2A',
-  overlay: 'rgba(0,0,0,0.75)',
-  chipBg: '#252525',
-  chipSelected: '#2979FF',
-  inputBg: '#252525',
-  inputBorder: '#333333',
+  // ── UI Chrome ────────────────────────────────────────────────────
+  separator: 'rgba(255,255,255,0.06)',
+  overlay: 'rgba(0,0,0,0.82)',
+  chipBg: '#141415',
+  chipSelected: '#4E8EFF',
+  inputBg: '#0E0E0F',
+  inputBorder: 'rgba(255,255,255,0.09)',
+  inputBorderFocus: 'rgba(78,142,255,0.5)',
 
-  // Progress
-  progressBg: '#2A2A2A',
-  progressFill: '#2979FF',
+  // ── Progress ─────────────────────────────────────────────────────
+  progressBg: 'rgba(255,255,255,0.07)',
+  progressFill: '#4E8EFF',
 
-  // Today button
-  todayPill: '#2979FF',
+  // ── Tab Bar ──────────────────────────────────────────────────────
+  tabBar: '#0A0A0B',
+  tabBarBorder: 'rgba(255,255,255,0.06)',
 };
 
 export const Spacing = {
@@ -48,10 +58,11 @@ export const Spacing = {
 };
 
 export const Radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
+  xs: 6,
+  sm: 10,
+  md: 14,
+  lg: 18,
+  xl: 26,
   full: 9999,
 };
 
@@ -62,7 +73,7 @@ export const FontSize = {
   lg: 17,
   xl: 20,
   xxl: 24,
-  xxxl: 28,
+  xxxl: 30,
 };
 
 export const FontWeight = {
