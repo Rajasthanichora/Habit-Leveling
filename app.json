@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "onspace-app",
+    "slug": "onspace-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "scheme": "onspaceapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.onspace.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/logo.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logo.png",
+          "color": "#2979FF",
+          "sounds": [
+            "./assets/sounds/alarm.wav",
+            "./assets/sounds/beep.wav",
+            "./assets/sounds/bell.wav",
+            "./assets/sounds/chime.wav",
+            "./assets/sounds/ding.wav",
+            "./assets/sounds/complete.wav",
+            "./assets/sounds/delete.wav"
+          ]
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "844ed3c3-d7dd-4122-ba1a-ef9aa4233315"
+      }
+    },
+    "owner": "veerrr.rj"
+  }
+}

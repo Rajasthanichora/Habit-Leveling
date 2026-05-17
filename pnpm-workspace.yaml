@@ -1,0 +1,6 @@
+packages:
+  - '.'
+allowBuilds:
+  protobufjs: true
+  react-native-elements: true
+  unrs-resolver: true
