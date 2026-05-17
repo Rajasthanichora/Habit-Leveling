@@ -20,7 +20,7 @@ export const globalStyles = StyleSheet.create({
   card: {
     backgroundColor: Colors.card,
     borderRadius: Radius.lg,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.cardBorder,
     padding: Spacing.md,
   },
@@ -31,16 +31,17 @@ export const globalStyles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   sectionTitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
+    fontSize: FontSize.xs,
+    color: Colors.textMuted,
     fontWeight: FontWeight.semibold,
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   bodyText: {
     fontSize: FontSize.md,
     color: Colors.textPrimary,
     fontWeight: FontWeight.regular,
+    lineHeight: 22,
   },
   headingText: {
     fontSize: FontSize.lg,
@@ -54,12 +55,12 @@ export const globalStyles = StyleSheet.create({
     alignItems: 'center',
   },
   separator: {
-    height: 1,
+    height: 0.5,
     backgroundColor: Colors.separator,
   },
   inputBase: {
     backgroundColor: Colors.inputBg,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.inputBorder,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
@@ -73,9 +74,12 @@ export const globalStyles = StyleSheet.create({
     borderRadius: Radius.full,
     backgroundColor: Colors.chipBg,
     marginRight: Spacing.sm,
+    borderWidth: 0.5,
+    borderColor: Colors.cardBorder,
   },
   chipSelected: {
-    backgroundColor: Colors.chipSelected,
+    backgroundColor: Colors.primaryGlow,
+    borderColor: Colors.primary,
   },
   chipText: {
     fontSize: FontSize.sm,
@@ -83,7 +87,7 @@ export const globalStyles = StyleSheet.create({
     fontWeight: FontWeight.medium,
   },
   chipTextSelected: {
-    color: Colors.textPrimary,
+    color: Colors.primary,
     fontWeight: FontWeight.semibold,
   },
 });
