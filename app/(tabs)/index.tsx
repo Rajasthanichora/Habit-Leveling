@@ -103,17 +103,10 @@ export default function HomeScreen() {
 
   const handleSaveReminder = useCallback(async (reminder: any) => {
     const { saveReminder } = await import('../../services/habitService');
-    const { scheduleReminderNotification, cancelReminderNotification } = await import('../../services/notificationService');
-    if (reminder.notificationId) {
-      await cancelReminderNotification(reminder.notificationId);
-    }
+    const { scheduleAlarm } = await import('../../services/notificationService');
     const habit = habits.find((h) => h.id === reminder.habitId);
     if (habit && reminder.type !== 'none') {
-      const notificationId = await scheduleReminderNotification(reminder, habit.name);
-      if (notificationId) {
-        await saveReminder({ ...reminder, notificationId });
-        return;
-      }
+      await scheduleAlarm(reminder, habit.name);
     }
     await saveReminder(reminder);
   }, [habits]);

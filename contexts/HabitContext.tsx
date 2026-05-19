@@ -23,7 +23,6 @@ import {
 } from '../services/habitService';
 import { todayStr } from '../services/recurrenceService';
 import { setSoundConfig, playCompletionSound, playDeleteSound } from '../services/soundService';
-import { updateNotificationSoundConfig } from '../services/notificationService';
 
 export interface HabitContextType {
   habits: Habit[];
@@ -181,13 +180,11 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     const snd = await loadSoundConfig();
     setSoundConfigState(snd);
     setSoundConfig(snd);
-    updateNotificationSoundConfig(snd);
   }, []);
 
   const updateSoundConfigAction = useCallback(async (config: SoundConfig) => {
     setSoundConfigState(config);
     setSoundConfig(config);
-    updateNotificationSoundConfig(config);
     await saveSoundConfig(config);
   }, []);
 

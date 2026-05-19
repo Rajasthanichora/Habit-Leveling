@@ -250,26 +250,12 @@ export default function SettingsScreen() {
             />
           </View>
 
-          {/* Notification Sound */}
-          <View style={styles.soundRow}>
-            <View style={styles.soundInfo}>
-              <Text style={styles.soundLabel}>Notification Sound</Text>
-              <Text style={styles.soundDesc}>Play sound for habit reminders</Text>
-            </View>
-            <Switch
-              value={soundConfig.notificationSound}
-              onValueChange={(val) => handleSoundChange('notificationSound', val)}
-              trackColor={{ false: Colors.chipBg, true: Colors.primary }}
-              thumbColor="#fff"
-            />
-          </View>
-
           {/* Alarm Sound */}
           <View style={styles.soundSectionLabel}>
             <Text style={styles.sectionLabelText}>ALARM SOUND</Text>
           </View>
           <Text style={styles.soundSectionDesc}>
-            Choose the default alarm sound for reminders & notifications
+            Choose the default alarm sound for reminders
           </Text>
 
           {alarmSounds.map((name) => (

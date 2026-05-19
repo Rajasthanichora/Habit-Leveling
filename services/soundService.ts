@@ -16,15 +16,11 @@ export async function initAudio(): Promise<void> {
 }
 
 const ALARM_SOUNDS: Record<string, AVPlaybackSource> = {
-  chime: require('../assets/sounds/chime.wav'),
-  bell: require('../assets/sounds/bell.wav'),
-  alarm: require('../assets/sounds/alarm.wav'),
-  beep: require('../assets/sounds/beep.wav'),
-  ding: require('../assets/sounds/ding.wav'),
+  musical_alarm: require('../assets/sounds/musical_alarm.wav'),
 };
 
-const COMPLETION_SOURCE: AVPlaybackSource = require('../assets/sounds/ding.wav');
-const DELETE_SOURCE: AVPlaybackSource = require('../assets/sounds/beep.wav');
+const COMPLETION_SOURCE: AVPlaybackSource = require('../assets/sounds/COMPLETION-SOUND.wav');
+const DELETE_SOURCE: AVPlaybackSource = require('../assets/sounds/DELETE-SOUND.wav');
 
 export const ALARM_SOUND_NAMES = Object.keys(ALARM_SOUNDS);
 
@@ -56,7 +52,7 @@ async function playOnce(source: AVPlaybackSource) {
 export async function preloadCommonSounds(): Promise<void> {
   if (preloaded) return;
   preloaded = true;
-  const sounds = [COMPLETION_SOURCE, DELETE_SOURCE, ALARM_SOUNDS.chime];
+  const sounds = [COMPLETION_SOURCE, DELETE_SOURCE, ALARM_SOUNDS.musical_alarm];
   for (const s of sounds) {
     try {
       const sound = await loadSound(s);
@@ -82,12 +78,6 @@ export async function playAlarmSound(soundName?: string) {
   const source = ALARM_SOUNDS[name];
   if (source) {
     await playOnce(source);
-  }
-}
-
-export async function playNotificationSound() {
-  if (currentConfig.notificationSound) {
-    await playOnce(require('../assets/sounds/chime.wav'));
   }
 }
 

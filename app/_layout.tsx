@@ -2,30 +2,25 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { HabitProvider } from '../contexts/HabitContext';
-import { initNotifications, updateNotificationSoundConfig, scheduleReminderNotification, cancelAllReminderNotifications } from '../services/notificationService';
-import { loadSoundConfig, loadReminders, loadHabits } from '../services/habitService';
+import { initAlarms, cancelAllAlarms, scheduleAlarm } from '../services/notificationService';
+import { loadReminders, loadHabits } from '../services/habitService';
 import { initAudio, preloadCommonSounds } from '../services/soundService';
 
-function NotificationInit() {
+function AlarmInit() {
   useEffect(() => {
     (async () => {
       try {
         await initAudio();
         preloadCommonSounds();
-        await initNotifications();
-        const snd = await loadSoundConfig();
-        updateNotificationSoundConfig(snd);
-        await cancelAllReminderNotifications();
+        await initAlarms();
+        await cancelAllAlarms();
         const reminders = await loadReminders();
         const habits = await loadHabits();
         for (const reminder of reminders) {
           if (reminder.type === 'none') continue;
           const habit = habits.find((h) => h.id === reminder.habitId);
           if (habit) {
-            const nid = await scheduleReminderNotification(reminder, habit.name);
-            if (nid && nid !== reminder.notificationId) {
-              reminder.notificationId = nid;
-            }
+            await scheduleAlarm(reminder, habit.name);
           }
         }
       } catch {}
@@ -38,7 +33,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <HabitProvider>
-        <NotificationInit />
+        <AlarmInit />
         <Stack screenOptions={{ headerShown: false }} />
       </HabitProvider>
     </GestureHandlerRootView>

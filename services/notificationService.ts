@@ -1,21 +1,18 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { ReminderConfig, SoundConfig } from './types';
-import { loadSoundConfig } from './habitService';
+import { ReminderConfig } from './types';
 
-let soundConfig: SoundConfig = { vibrationOnTap: true, completionSound: true, deleteSound: true, alarmSound: 'chime', notificationSound: true };
-
-export async function initNotifications() {
+export async function initAlarms() {
   const { status } = await Notifications.requestPermissionsAsync();
   if (status !== 'granted') return;
 
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
+      shouldShowAlert: false,
       shouldPlaySound: true,
       shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList: true,
+      shouldShowBanner: false,
+      shouldShowList: false,
     }),
   });
 
@@ -23,19 +20,12 @@ export async function initNotifications() {
     await Notifications.setNotificationChannelAsync('habit-reminders', {
       name: 'Habit Reminders',
       importance: Notifications.AndroidImportance.HIGH,
-      sound: 'default',
+      sound: 'musical_alarm.wav',
     });
   }
-
-  const snd = await loadSoundConfig();
-  soundConfig = snd;
 }
 
-export function updateNotificationSoundConfig(config: SoundConfig) {
-  soundConfig = config;
-}
-
-export async function scheduleReminderNotification(
+export async function scheduleAlarm(
   reminder: ReminderConfig,
   habitName: string
 ): Promise<string | undefined> {
@@ -46,8 +36,6 @@ export async function scheduleReminderNotification(
 
   if (date.getTime() <= Date.now()) return;
 
-  const soundName = reminder.sound && soundConfig.notificationSound ? soundConfig.alarmSound : undefined;
-
   const trigger = {
     type: Notifications.SchedulableTriggerInputTypes.DATE,
     date,
@@ -55,10 +43,10 @@ export async function scheduleReminderNotification(
   };
 
   const content: Notifications.NotificationContentInput = {
-    title: 'Habit Reminder',
+    title: 'Habit Alarm',
     body: `Time to: ${habitName}`,
-    sound: soundName,
-    data: { habitId: reminder.habitId, date: reminder.date },
+    sound: 'musical_alarm.wav',
+    data: { habitId: reminder.habitId, date: reminder.date, isAlarm: true },
   };
 
   const identifier = await Notifications.scheduleNotificationAsync({
@@ -69,14 +57,14 @@ export async function scheduleReminderNotification(
   return identifier;
 }
 
-export async function cancelReminderNotification(identifier: string) {
+export async function cancelAlarm(identifier: string) {
   await Notifications.cancelScheduledNotificationAsync(identifier);
 }
 
-export async function cancelAllReminderNotifications() {
+export async function cancelAllAlarms() {
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
-export async function getAllScheduledNotifications() {
+export async function getAllScheduledAlarms() {
   return await Notifications.getAllScheduledNotificationsAsync();
 }

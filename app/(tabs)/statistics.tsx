@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
+import Svg, { Circle, Line, Polyline, G } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useStatistics } from '../../hooks/useStatistics';
@@ -88,7 +89,7 @@ const bc = StyleSheet.create({
   barLabel: { fontSize: 9, color: Colors.textMuted, textAlign: 'center' },
 });
 
-// ── Simple Line Chart ─────────────────────────────────────────────────────────
+// ── Line Chart (SVG) ──────────────────────────────────────────────────────────
 function LineChart({ points }: { points: { date: string; rate: number }[] }) {
   const sample = points.length > 30
     ? points.filter((_, i) => i % Math.ceil(points.length / 30) === 0)
@@ -102,66 +103,45 @@ function LineChart({ points }: { points: { date: string; rate: number }[] }) {
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <View style={{ width: W, height: H + 20 }}>
+      <Svg width={W} height={H + 20}>
         {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map((v) => (
-          <View
+          <Line
             key={v}
-            style={{
-              position: 'absolute',
-              top: H - v * H,
-              left: 0,
-              right: 0,
-              height: 1,
-              backgroundColor: Colors.separator,
-            }}
+            x1={0}
+            y1={H - v * H}
+            x2={W}
+            y2={H - v * H}
+            stroke={Colors.separator}
+            strokeWidth={1}
           />
         ))}
+        {/* Line */}
+        {pts.length > 1 && (
+          <Polyline
+            points={pts.map(p => `${p.x},${p.y}`).join(' ')}
+            fill="none"
+            stroke={Colors.primary}
+            strokeWidth={2}
+            strokeLinejoin="round"
+          />
+        )}
         {/* Dots */}
         {pts.map((p, i) => (
-          <View
+          <Circle
             key={i}
-            style={{
-              position: 'absolute',
-              left: p.x - 3,
-              top: p.y - 3,
-              width: 6,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: Colors.primary,
-            }}
+            cx={p.x}
+            cy={p.y}
+            r={3}
+            fill={Colors.primary}
           />
         ))}
-        {/* Line (approximated with dots) */}
-        {pts.slice(1).map((p, i) => {
-          const prev = pts[i];
-          const dx = p.x - prev.x;
-          const dy = p.y - prev.y;
-          const len = Math.sqrt(dx * dx + dy * dy);
-          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-          return (
-            <View
-              key={`line-${i}`}
-              style={{
-                position: 'absolute',
-                left: prev.x,
-                top: prev.y,
-                width: len,
-                height: 2,
-                backgroundColor: Colors.primary,
-                transform: [{ rotate: `${angle}deg` }],
-                transformOrigin: '0% 50%',
-                opacity: 0.7,
-              }}
-            />
-          );
-        })}
-      </View>
+      </Svg>
     </ScrollView>
   );
 }
 
-// ── Pie Chart ─────────────────────────────────────────────────────────────────
+// ── Pie Chart (SVG) ───────────────────────────────────────────────────────────
 function PieChart({ completed, failed, skipped }: { completed: number; failed: number; skipped: number }) {
   const total = completed + failed + skipped;
   if (total === 0) {
@@ -171,9 +151,9 @@ function PieChart({ completed, failed, skipped }: { completed: number; failed: n
       </View>
     );
   }
-  const compPct = Math.round((completed / total) * 100);
-  const failPct = Math.round((failed / total) * 100);
-  const skipPct = 100 - compPct - failPct;
+  const compPct = completed / total;
+  const failPct = failed / total;
+  const skipPct = skipped / total;
 
   const segments = [
     { label: 'Completed', value: compPct, color: Colors.success },
@@ -186,22 +166,38 @@ function PieChart({ completed, failed, skipped }: { completed: number; failed: n
   const R = (SIZE - STROKE) / 2;
   const CIRC = 2 * Math.PI * R;
 
+  let cumulative = 0;
+  const arcs = segments.map((seg) => {
+    const arc = seg.value * CIRC;
+    const offset = cumulative;
+    cumulative += arc;
+    return { ...seg, arc, offset };
+  });
+
   return (
     <View style={pie.container}>
-      {/* SVG-like approximation using stacked views */}
-      <View style={[pie.circle, { width: SIZE, height: SIZE }]}>
+      <View style={{ width: SIZE, height: SIZE, justifyContent: 'center', alignItems: 'center' }}>
+        <Svg width={SIZE} height={SIZE}>
+          <G rotation="-90" originX={SIZE / 2} originY={SIZE / 2}>
+            {arcs.map((seg) => (
+              <Circle
+                key={seg.label}
+                cx={SIZE / 2}
+                cy={SIZE / 2}
+                r={R}
+                fill="none"
+                stroke={seg.color}
+                strokeWidth={STROKE}
+                strokeDasharray={`${seg.arc} ${CIRC - seg.arc}`}
+                strokeDashoffset={-seg.offset}
+                strokeLinecap="butt"
+              />
+            ))}
+          </G>
+        </Svg>
         <View style={pie.centerLabel}>
-          <Text style={pie.centerPct}>{compPct}%</Text>
+          <Text style={pie.centerPct}>{Math.round(compPct * 100)}%</Text>
           <Text style={pie.centerSub}>Done</Text>
-        </View>
-        {/* Segment bars as visual representation */}
-        <View style={pie.segRow}>
-          {segments.map((s) => (
-            <View
-              key={s.label}
-              style={[pie.segBar, { flex: s.value, backgroundColor: s.color }]}
-            />
-          ))}
         </View>
       </View>
       <View style={pie.legend}>
@@ -209,7 +205,7 @@ function PieChart({ completed, failed, skipped }: { completed: number; failed: n
           <View key={s.label} style={pie.legendItem}>
             <View style={[pie.legendDot, { backgroundColor: s.color }]} />
             <Text style={pie.legendLabel}>{s.label}</Text>
-            <Text style={pie.legendPct}>{s.value}%</Text>
+            <Text style={pie.legendPct}>{Math.round(s.value * 100)}%</Text>
           </View>
         ))}
       </View>
@@ -219,26 +215,7 @@ function PieChart({ completed, failed, skipped }: { completed: number; failed: n
 
 const pie = StyleSheet.create({
   container: { alignItems: 'center', gap: Spacing.md },
-  circle: {
-    borderRadius: 999,
-    backgroundColor: Colors.card,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.cardBorder,
-    overflow: 'hidden',
-  },
-  segRow: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 8,
-    flexDirection: 'row',
-    overflow: 'hidden',
-  },
-  segBar: { height: 8 },
-  centerLabel: { alignItems: 'center' },
+  centerLabel: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   centerPct: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.textPrimary },
   centerSub: { fontSize: FontSize.xs, color: Colors.textSecondary },
   legend: { gap: Spacing.xs, alignSelf: 'stretch' },

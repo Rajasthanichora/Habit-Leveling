@@ -4,51 +4,44 @@
     "slug": "onspace-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/Habit-Tracker-logo.png",
     "scheme": "onspaceapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.onspace.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/Habit-Tracker-logo.png",
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/Habit-Tracker-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
+          "image": "./assets/images/Habit-Tracker-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ],
       "expo-web-browser",
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo.png",
+          "icon": "./assets/images/Habit-Tracker-logo.png",
           "color": "#2979FF",
           "sounds": [
-            "./assets/sounds/alarm.wav",
-            "./assets/sounds/beep.wav",
-            "./assets/sounds/bell.wav",
-            "./assets/sounds/chime.wav",
-            "./assets/sounds/ding.wav",
-            "./assets/sounds/complete.wav",
-            "./assets/sounds/delete.wav"
+            "./assets/sounds/musical_alarm.wav"
           ]
         }
       ],

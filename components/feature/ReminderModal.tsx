@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, Pressable, StyleSheet, Switch, TextInput } from 'react-native';
+import { Modal, View, Text, Pressable, StyleSheet, Switch, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { ReminderConfig, ReminderType } from '../../services/types';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '../../constants/theme';
 import { formatDate } from '../../services/recurrenceService';
@@ -14,31 +15,42 @@ interface Props {
   onSave: (reminder: ReminderConfig) => void;
 }
 
-const QUICK_TIMES = [
-  { label: 'Morning', time: '08:00' },
-  { label: 'Afternoon', time: '12:00' },
-  { label: 'Evening', time: '18:00' },
-  { label: 'Night', time: '21:00' },
-];
-
 export function ReminderModal({ visible, habitId, initial, onClose, onSave }: Props) {
   const today = formatDate(new Date());
   const [date, setDate] = useState(initial?.date ?? today);
-  const [time, setTime] = useState(initial?.time ?? '09:00');
-  const [customTime, setCustomTime] = useState('');
-  const [type, setType] = useState<ReminderType>(initial?.type ?? 'notification');
+  const [selectedTime, setSelectedTime] = useState(() => {
+    if (initial?.time) {
+      const [h, m] = initial.time.split(':').map(Number);
+      const d = new Date();
+      d.setHours(h, m, 0, 0);
+      return d;
+    }
+    const d = new Date();
+    d.setHours(9, 0, 0, 0);
+    return d;
+  });
+  const [type, setType] = useState<ReminderType>(initial?.type ?? 'alarm');
   const [sound, setSound] = useState(initial?.sound ?? true);
   const [vibration, setVibration] = useState(initial?.vibration ?? true);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const handleSave = () => {
-    const finalTime = customTime || time;
+    const hh = String(selectedTime.getHours()).padStart(2, '0');
+    const mm = String(selectedTime.getMinutes()).padStart(2, '0');
+    const finalTime = `${hh}:${mm}`;
     if (!date || !finalTime) return;
     onSave({ habitId, date, time: finalTime, type, sound, vibration });
     onClose();
   };
 
   const displayDate = date === today ? 'Today' : date;
+  const timeStr = `${String(selectedTime.getHours()).padStart(2, '0')}:${String(selectedTime.getMinutes()).padStart(2, '0')}`;
+
+  const onTimeChange = (_event: DateTimePickerEvent, d?: Date) => {
+    setShowTimePicker(Platform.OS === 'ios');
+    if (d) setSelectedTime(d);
+  };
 
   return (
     <>
@@ -62,42 +74,24 @@ export function ReminderModal({ visible, habitId, initial, onClose, onSave }: Pr
 
             {/* Time */}
             <Text style={[styles.label, { marginTop: Spacing.md }]}>TIME</Text>
-            <View style={styles.quickTimeRow}>
-              {QUICK_TIMES.map((qt) => {
-                const sel = !customTime && time === qt.time;
-                return (
-                  <Pressable
-                    key={qt.time}
-                    style={[styles.quickTimeBtn, sel && styles.quickTimeBtnSelected]}
-                    onPress={() => { setTime(qt.time); setCustomTime(''); }}
-                  >
-                    <Text style={[styles.quickTimeLabel, sel && styles.quickTimeLabelSelected]}>
-                      {qt.label}
-                    </Text>
-                    <Text style={[styles.quickTimeValue, sel && styles.quickTimeValueSelected]}>
-                      {qt.time}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* Custom time input */}
-            <View style={styles.customTimeRow}>
-              <Text style={styles.customTimePrefix}>Custom:</Text>
-              <TextInput
-                style={styles.customTimeInput}
-                value={customTime}
-                onChangeText={(t) => { setCustomTime(t); setTime(''); }}
-                placeholder="HH:mm"
-                placeholderTextColor={Colors.textMuted}
+            <Pressable style={styles.timePickerBtn} onPress={() => setShowTimePicker(true)}>
+              <MaterialIcons name="access-time" size={20} color={Colors.primary} />
+              <Text style={styles.timeText}>{timeStr}</Text>
+              <MaterialIcons name="edit" size={18} color={Colors.textMuted} />
+            </Pressable>
+            {showTimePicker && (
+              <DateTimePicker
+                value={selectedTime}
+                mode="time"
+                display="spinner"
+                onChange={onTimeChange}
               />
-            </View>
+            )}
 
             {/* Reminder Type */}
             <Text style={[styles.label, { marginTop: Spacing.md }]}>REMINDER TYPE</Text>
             <View style={styles.typeRow}>
-              {(['notification', 'alarm', 'none'] as ReminderType[]).map((t) => {
+              {(['alarm', 'none'] as ReminderType[]).map((t) => {
                 const sel = type === t;
                 return (
                   <Pressable
@@ -106,12 +100,12 @@ export function ReminderModal({ visible, habitId, initial, onClose, onSave }: Pr
                     onPress={() => setType(t)}
                   >
                     <MaterialIcons
-                      name={t === 'notification' ? 'notifications' : t === 'alarm' ? 'alarm' : 'block'}
+                      name={t === 'alarm' ? 'alarm' : 'block'}
                       size={16}
                       color={sel ? '#fff' : Colors.textSecondary}
                     />
                     <Text style={[styles.typeBtnText, sel && styles.typeBtnTextSelected]}>
-                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                      {t === 'alarm' ? 'Alarm' : 'None'}
                     </Text>
                   </Pressable>
                 );
@@ -206,58 +200,22 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontWeight: FontWeight.medium,
   },
-  quickTimeRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  quickTimeBtn: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.xs,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-  },
-  quickTimeBtnSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  quickTimeLabel: {
-    fontSize: FontSize.xs,
-    color: Colors.textSecondary,
-    fontWeight: FontWeight.medium,
-  },
-  quickTimeLabelSelected: { color: '#fff' },
-  quickTimeValue: {
-    fontSize: FontSize.sm,
-    color: Colors.textPrimary,
-    fontWeight: FontWeight.bold,
-    marginTop: 2,
-  },
-  quickTimeValueSelected: { color: '#fff' },
-  customTimeRow: {
+  timePickerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  customTimePrefix: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    fontWeight: FontWeight.medium,
-  },
-  customTimeInput: {
-    flex: 1,
     backgroundColor: Colors.inputBg,
     borderWidth: 1,
     borderColor: Colors.inputBorder,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 8,
+    paddingVertical: 14,
+    gap: Spacing.sm,
+  },
+  timeText: {
+    flex: 1,
+    fontSize: FontSize.lg,
     color: Colors.textPrimary,
-    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
   },
   typeRow: {
     flexDirection: 'row',

@@ -59,7 +59,7 @@ export interface HabitCompletion {
   completedAt: string;
 }
 
-export type ReminderType = 'notification' | 'alarm' | 'none';
+export type ReminderType = 'alarm' | 'none';
 
 export interface ReminderConfig {
   habitId: string;
@@ -68,7 +68,6 @@ export interface ReminderConfig {
   type: ReminderType;
   sound: boolean;
   vibration: boolean;
-  notificationId?: string;
 }
 
 export interface SortConfig {
@@ -84,15 +83,13 @@ export interface SoundConfig {
   completionSound: boolean;
   deleteSound: boolean;
   alarmSound: string;
-  notificationSound: boolean;
 }
 
 export const DEFAULT_SOUND_CONFIG: SoundConfig = {
   vibrationOnTap: true,
   completionSound: true,
   deleteSound: true,
-  alarmSound: 'chime',
-  notificationSound: true,
+  alarmSound: 'musical_alarm',
 };
 
 // ─── API Config ──────────────────────────────────────────────────────────
