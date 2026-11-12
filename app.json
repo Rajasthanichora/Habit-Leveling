@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "Habit Leveling",
+    "slug": "habit-leveling",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/Habit-Tracker-logo.png",
+    "scheme": "habitleveling",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {}
+    },
+    "android": {
+      "package": "com.onspace.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/Habit-Tracker-logo.png",
+        "backgroundColor": "#000000"
+      },
+      "permissions": [
+        "SCHEDULE_EXACT_ALARM",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/Habit-Tracker-logo.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/Habit-Tracker-logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/Habit-Tracker-logo.png",
+          "color": "#2979FF",
+          "sounds": [
+            "./assets/sounds/musical_alarm.wav"
+          ]
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "expo-audio",
+        {}
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "6a179510-ccd3-48ff-9b8a-a2d9ca7d2ea4"
+      }
+    },
+    "owner": "veerbbl6350"
+  }
+}
